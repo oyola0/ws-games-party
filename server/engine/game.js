@@ -1,45 +1,42 @@
-const { createGame, createPlayer, getGame } = require("./connections");
+const {
+  createGame,
+  sendGameEvent,
+  joinToCreateGame,
+  getPlayersInGame,
+} = require("./connections");
 
 const gameMessage = {
-    createGame: (data, con) => {
-        const countdown = 60;       
-        con.send({
-            message: 'startCountdown',
-            counter: countdown
-        });
+  createGame: (data, con) => {
+    const gameId = createGame(con);
+    con.send({
+      message: "gameCreated",
+      gameId,
+    });
 
-        setTimeout(() => {
-            con.send({
-                message: 'finishedCountdown',
-            });
-        }, countdown * 1000);
+    let counter = 61;
+    const interval = setInterval(() => {
+      counter -= 1;
+      sendGameEvent(gameId, {
+        message: "countdown",
+        counter,
+      });
 
-        const gameId = createGame(con);        
-        con.send({
-            message: 'startingGame',
-            gameId,
+      if (counter === 0) {
+        clearInterval(interval);
+        sendGameEvent(gameId, {
+          message: "finishedCountdown",
         });
-    },
-    joinGame: ({ gameId, username }, con) => {
-        try {
-            const playerId = createPlayer(gameId, username, con);
-            const { connection } = getGame(gameId);
-            connection.send({
-                message: 'joinedPlayer',
-                username: username,
-            });
-            con.send({
-                message: 'joinedGame',
-                gameId,
-                playerId,
-            });
-        } catch (error) {
-            console.log('ERROR:', error)
-            con.send({
-                message: 'error',
-            });
-        }        
-    }
-}
+      }
+    }, 1000);
+  },
+  joinCreateGame: ({ gameId }, con) => {
+    const players = getPlayersInGame(gameId);
+    con.send({
+      message: "players",
+      players,
+    });
+    joinToCreateGame(gameId, con);
+  },
+};
 
 module.exports = gameMessage;

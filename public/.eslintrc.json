@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "import/extensions": [1],
+    "import/no-unresolved": [1]
+  },
+  "env": {
+    "browser": true,
+    "node": false
+  }
+}

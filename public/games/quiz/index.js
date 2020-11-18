@@ -1,11 +1,11 @@
 class WcQuiz extends HTMLElement {
   static tag() {
-    return 'wc-quiz';
+    return "wc-quiz";
   }
 
   constructor() {
-    super();  
-    this.shadowRoot.innerHTML = `<h1>Hello to QUIZ!</h1>`;    
+    super();
+    this.shadowRoot.innerHTML = `<h1>Hello to QUIZ!</h1>`;
   }
 }
 

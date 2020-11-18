@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Welcome</title>
-    </head>
-    <body>
-        <header>
-            <h1>Unirte a partida</h1>
-            <form action="./game/join/index.html" method="get">                
-                <input type="text" name="username" placeholder="Nombre de jugador">
-                <input type="number" name="game-id" placeholder="ID de la partida">                
-                <input type="submit" value="Unirse">
-            </form>
-            <a href="./game/create/index.html"><h1>Crear una partida</h1></a>
-        </header>
-        <section></section>
-        <footer></footer>
-    </body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Welcome</title>
+    <script type="module" src="./index.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Unirse como jugador</h1>
+      <input type="text" id="join-username" placeholder="Nombre de jugador" />
+      <input type="number" id="join-game-id" placeholder="ID de la partida" />
+      <button id="join-btn">Unirse</button>
+
+      <h1>Nueva partida</h1>
+      <button id="create-btn">Crear una partida nueva</button>
+
+      <h1>Ver partida</h1>
+      <form action="./game/lobby/index.html" method="get">
+        <input type="number" name="game-id" placeholder="ID de la partida" />
+        <input type="submit" value="Ver" />
+      </form>
+    </header>
+    <section></section>
+    <footer></footer>
+  </body>
 </html>
