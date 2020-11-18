@@ -23,10 +23,17 @@ con.listen("playerIsReady", ({ playerId }) => {
 });
 
 con.listen("playerDisconnected", ({ playerId }) => {
-  getEl(`${playerId}_detail`).innerHTML = "Desconectado";
-  setTimeout(() => {
-    getEl(`${playerId}`).remove();
-  }, 1000);
+  const el = getEl(`${playerId}`);
+  if (el) {
+    el.className = `to-delete ${el.className}`;
+    getEl(`${playerId}_detail`).innerHTML = "Desconectado";
+    setTimeout(() => {
+      const itemEl = getEl(`${playerId}`);
+      if (itemEl && itemEl.className.includes("to-delete")) {
+        itemEl.remove();
+      }
+    }, 1000);
+  }
 });
 
 con.listen("playerReadyPercentage", ({ playerId, percentage }) => {
@@ -37,11 +44,17 @@ con.listen("playerReadyPercentage", ({ playerId, percentage }) => {
 
 const playersEl = getEl("players");
 con.listen("playerJoined", ({ username, playerId }) => {
-  playersEl.innerHTML = `
-        ${playersEl.innerHTML}
-        <li id="${playerId}">
-            ${username} <span id="${playerId}_detail"></span>
-        </li>`;
+  const el = getEl(`${playerId}`);
+  if (el) {
+    el.className = el.className.replace(/to-delete /g, "");
+    getEl(`${playerId}_detail`).innerHTML = "";
+  } else {
+    playersEl.innerHTML = `
+    ${playersEl.innerHTML}
+    <li id="${playerId}">
+        ${username} <span id="${playerId}_detail"></span>
+    </li>`;
+  }
 });
 
 con.listen("players", ({ players }) => {
@@ -49,12 +62,12 @@ con.listen("players", ({ players }) => {
     const playerEl = getEl(`${playerId}`);
     if (!playerEl) {
       playersEl.innerHTML = `
-                ${playersEl.innerHTML}
-                <li id="${playerId}">
-                    ${username} <span id="${playerId}_detail">${
+        ${playersEl.innerHTML}
+        <li id="${playerId}">
+            ${username} <span id="${playerId}_detail">${
         isReady ? "Ready!" : ""
       }</span>
-                </li>`;
+        </li>`;
     }
   });
 });

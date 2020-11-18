@@ -1,5 +1,8 @@
-function Connection() {  
-  const connection = new WebSocket(`ws://${window.location.host}`, 'echo-protocol');
+function Connection() {
+  const connection = new WebSocket(
+    `ws://${window.location.host}`,
+    "echo-protocol"
+  );
   const listeners = new Map();
 
   let listenerCounter = 0;

@@ -8,7 +8,7 @@ const app = express();
 const port = 8000;
 
 const server = app.listen(port, () => {
-  console.log("\x1b[36m", `http://localhost:${port}`, "\x1b[0m");
+  console.log("\x1b[36m", `http://localhost:${port}\n`, "\x1b[0m");
 });
 
 const wsServer = new WebSocketServer({
@@ -47,7 +47,7 @@ wsServer.on("request", function (request) {
     try {
       engine[msg](data, con);
     } catch (error) {
-      console.log("\x1b[31mError:", "\x1b[0m", error);
+      console.log("\x1b[31mError:\x1b[0m", error);
       con.send({
         message: "error",
         msg: error.message,

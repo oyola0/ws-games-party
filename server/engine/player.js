@@ -2,12 +2,12 @@ const {
   sendGameEvent,
   createPlayer,
   rejoinPlayer,
-  getPlayer,
+  getPlayerModel,
 } = require("./connections");
 
 const gameMessage = {
   playerIdReady: (data, { gameId, playerId }) => {
-    const player = getPlayer(gameId, playerId);
+    const player = getPlayerModel(gameId, playerId);
     player.isReady = true;
     sendGameEvent(gameId, {
       message: "playerIsReady",

@@ -30,12 +30,15 @@ const sendGameEvent = (gameId, dataEvent) => {
 
 const getPlayersInGame = (gameId) => {
   const result = [];
-  players.get(gameId).forEach(({ playerId, username, isReady }) => {
-    result.push({
-      playerId,
-      username,
-      isReady,
-    });
+  players.get(gameId).forEach(({ model, connection }) => {
+    if (connection.connected) {
+      const { playerId, username, isReady } = model;
+      result.push({
+        playerId,
+        username,
+        isReady,
+      });
+    }
   });
   return result;
 };
@@ -47,8 +50,11 @@ const createPlayer = (gameId, username, con) => {
   connection.gameId = gameId;
   players.get(gameId).set(playerId, {
     connection,
-    username,
-    playerId,
+    model: {
+      username,
+      playerId,
+      isReady: false,
+    },
   });
   return playerId;
 };
@@ -59,15 +65,15 @@ const rejoinPlayer = (gameId, playerId, con) => {
   if (player.connection.connected) {
     throw new Error("player connected yet");
   } else {
-    player.connection = connection;
     connection.playerId = playerId;
     connection.gameId = gameId;
+    player.connection = connection;
   }
-  return player;
+  return player.model;
 };
 
-const getPlayer = (gameId, playerId) => {
-  return players.get(gameId).get(playerId);
+const getPlayerModel = (gameId, playerId) => {
+  return players.get(gameId).get(playerId).model;
 };
 
 module.exports = {
@@ -77,5 +83,5 @@ module.exports = {
   getPlayersInGame,
   createPlayer,
   rejoinPlayer,
-  getPlayer,
+  getPlayerModel,
 };
