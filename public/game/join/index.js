@@ -59,8 +59,21 @@ con.listen("playerJoined", (data) => {
   }
 });
 
+con.listen("errorRequiredMoreUsers", () => {
+  alert("Numero de usuarios insuficientes. Minimo 2");
+  window.location.replace(window.location.origin);
+});
+
 con.listen("error", () => {
   alert("El ID de partida no existe");
+});
+
+con.listen("replaceTo", ( { type }) => {
+  // window.location.replace(`${window.location.origin}/${type}/player.html`);
+  import(`${window.location.origin}/games/${type}/player.js`).then((module) => {
+    const tag = module.default;
+    document.body.innerHTML = `<${tag}></${tag}>`;
+  });
 });
 
 con.send("joinPlayerToNewGame", {

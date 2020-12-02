@@ -7,21 +7,19 @@ const createGame = (con) => {
   const connection = con;
   const gameId = session.newGame();
   connection.gameId = gameId;
-  games.set(gameId, {
-    connections: [connection],
-  });
+  games.set(gameId, [connection]);
   players.set(gameId, new Map());
   return gameId;
 };
 
 const joinToCreateGame = (gameId, con) => {
   const connection = con;
-  games.get(gameId).connections.push(connection);
+  games.get(gameId).push(connection);
   connection.gameId = gameId;
 };
 
 const sendGameEvent = (gameId, dataEvent) => {
-  games.get(gameId).connections.forEach((con) => {
+  games.get(gameId).forEach((con) => {
     if (con.connected) {
       con.send(dataEvent);
     }
@@ -65,9 +63,9 @@ const rejoinPlayer = (gameId, playerId, con) => {
   if (player.connection.connected) {
     throw new Error("player connected yet");
   } else {
+    player.connection = connection;
     connection.playerId = playerId;
     connection.gameId = gameId;
-    player.connection = connection;
   }
   return player.model;
 };
@@ -76,12 +74,34 @@ const getPlayerModel = (gameId, playerId) => {
   return players.get(gameId).get(playerId).model;
 };
 
+const sendGameAndPlayerEvent = (gameId, dataEvent) => {
+  games.get(gameId).forEach((con) => {
+    if (con.connected) {
+      con.send(dataEvent);
+    }
+  });
+  players.get(gameId).forEach(({ connection }) => {
+    if (connection.connected) {
+      connection.send(dataEvent);
+    }
+  });
+};
+
+const destroyGame = (gameId) => {
+  setTimeout(() => {
+    games.delete(gameId);
+    players.delete(gameId);
+  }, 5000);
+};
+
 module.exports = {
   createGame,
   joinToCreateGame,
   sendGameEvent,
+  sendGameAndPlayerEvent,
   getPlayersInGame,
   createPlayer,
   rejoinPlayer,
   getPlayerModel,
+  destroyGame,
 };

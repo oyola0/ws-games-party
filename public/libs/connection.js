@@ -1,35 +1,50 @@
 function Connection() {
-  const connection = new WebSocket(
-    `ws://${window.location.host}`,
-    "echo-protocol"
-  );
+  let connection;
   const listeners = new Map();
 
   let listenerCounter = 0;
   let ready = false;
   let pendings = [];
 
-  connection.onopen = () => {
-    ready = true;
-    pendings.forEach((data) => {
-      this.send(data.message, data);
-    });
-    pendings = [];
+  const createNewConnection = () => {
+    const checkConnection = () => {
+      const interval = setInterval(() => {
+        if (connection.readyState !== 1) {
+          ready = false;
+          clearInterval(interval);
+          createNewConnection();
+        }
+      }, 5000);
+    };
+
+    connection = new WebSocket(`ws://${window.location.host}`, "echo-protocol");
+
+    connection.onopen = () => {
+      ready = true;
+      pendings.forEach((data) => {
+        this.send(data.message, data);
+      });
+      pendings = [];
+      checkConnection();
+    };
+
+    connection.onerror = (error) => {
+      console.log("onerror", error);
+      checkConnection();
+    };
+
+    connection.onmessage = (message) => {
+      const data = JSON.parse(message.data);
+
+      listeners.forEach(({ msg, cb }) => {
+        if (data.message === msg) {
+          cb(data);
+        }
+      });
+    };
   };
 
-  connection.onerror = (error) => {
-    console.log("onerror", error);
-  };
-
-  connection.onmessage = (message) => {
-    const data = JSON.parse(message.data);
-
-    listeners.forEach(({ msg, cb }) => {
-      if (data.message === msg) {
-        cb(data);
-      }
-    });
-  };
+  createNewConnection();
 
   this.listen = (msg, cb) => {
     listenerCounter += 1;

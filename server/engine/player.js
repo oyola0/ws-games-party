@@ -3,10 +3,12 @@ const {
   createPlayer,
   rejoinPlayer,
   getPlayerModel,
+  getPlayersInGame,
 } = require("./connections");
 
-const gameMessage = {
-  playerIdReady: (data, { gameId, playerId }) => {
+const playerMessage = {
+  playerIdReady: (data, con) => {
+    const { gameId, playerId } = con;
     const player = getPlayerModel(gameId, playerId);
     player.isReady = true;
     sendGameEvent(gameId, {
@@ -14,7 +16,8 @@ const gameMessage = {
       playerId,
     });
   },
-  playerReadyPercentage: ({ percentage }, { gameId, playerId }) => {
+  playerReadyPercentage: ({ percentage }, con) => {
+    const { gameId, playerId } = con;
     sendGameEvent(gameId, {
       message: "playerReadyPercentage",
       playerId,
@@ -32,25 +35,30 @@ const gameMessage = {
   },
   joinPlayerToNewGame: ({ gameId, playerId }, con) => {
     const { username, isReady } = rejoinPlayer(gameId, playerId, con);
-    const msg = {
+
+    const players = getPlayersInGame(gameId);
+    sendGameEvent(gameId, {
+      message: "playersInLobby",
+      players,
+    });
+
+    con.send({
       message: "playerJoined",
       isReady,
       gameId,
       username,
-      playerId,
-    };
-    sendGameEvent(gameId, msg);
-    con.send(msg);
+    });
   },
   disconnected: (con) => {
     const { gameId, playerId } = con;
     if (gameId && playerId) {
+      const players = getPlayersInGame(gameId);
       sendGameEvent(gameId, {
-        message: "playerDisconnected",
-        playerId,
+        message: "playersInLobby",
+        players,
       });
     }
   },
 };
 
-module.exports = gameMessage;
+module.exports = playerMessage;
